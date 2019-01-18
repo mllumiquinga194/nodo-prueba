@@ -1,3 +1,41 @@
+function compare(a, b) {
+
+  if (a.champions > b.champions) {
+    return -1;
+  }
+  if (a.champions < b.champions) {
+    return 1;
+  }
+  return 0;
+}
+
+function agregar(equipo) {
+
+  // agrego el equipo al arreglo de equipos
+  teams.push(equipo);
+
+  // relaciono el equipo con la liga
+  const team = leagues.filter(liga => liga.country === equipo.country);
+
+  // objeto con el id del equipo y id de la liga al que pertenece
+  var newEquipoLiga = {
+    teamId: equipo.id,
+    leagueId: team[0].id
+  }
+
+  // objeto con el id del equipo nuevo con su numero de champions
+  var newEquipoWins = {
+    teamId: equipo.id,
+    wins: 4
+  }
+
+  // Relaciono el equipo al arreglo de teamsByLeague
+  teamsByLeague.push(newEquipoLiga);
+
+  // agrego el numero de victorias del equipo nuevo al arreglo winsByTeams
+  winsByTeams.push(newEquipoWins);
+}
+
 // No editar
 const teams = [
   { id: 1, country: 'Spain', name: 'Real Madrid C.F.' },
@@ -69,50 +107,116 @@ const winsByTeams = [
 */
 
 // 0 Arreglo con los ids de los equipos (función de ejemplo)
-function listTeamsIds () {
+function listTeamsIds() {
   return teams.map((client) => client.id)
 }
 
 // 1 Arreglo con los nombres de los equipos y el país al que pertenecen, ordenados alfabéticamente por el nombre de su país de origen.
-function listTeamsByCountry () {
-  // CODE HERE
+function listTeamsByCountry() {
+
+  // Utilicé el metodo SORT() con una funcion de comparacion para ordenar los equipos alfabeticamente por pais.
+  return teams.sort((a, b) => (a.country < b.country ? -1 : a.country > b.country ? 1 : 0)).map(item => [item.country, item.name]);
 }
 
 // 2 Arreglo con los nombres de los equipos ordenados de mayor a menor por la cantidad de victorias en champions league.
-function sortTeamsByWins () {
+function sortTeamsByWins() {
   // CODE HERE
+  const equipos = teams.map((equipo) => {
+    // con el metodo map() obtengo cada equipo, con el id de cada equipo puedo buscar en el arreglo winsByTeams las victoria de ese equipo
+    const wins = winsByTeams.find(wins => wins.teamId === equipo.id);
+
+    // Retorno un objeto con el equipo y el numero de chamspions por equipo
+    return {
+      equipo: equipo.name,
+      champions: wins.wins
+    }
+
+  });
+
+  // Ordeno de mayor a menor
+  return equipos.sort(compare).map(item => item.equipo);
 }
 
 // 3 Arreglo de objetos en donde se muestre el nombre de las ligas y la sumatoria de las victorias de los equipos que pertenecen a ellas.
-function leaguesWithWins () {
+function leaguesWithWins() {
   // CODE HERE
+  const ligas = leagues.map(liga => {
+    var champions = 0;
+
+    // Recorro las ligas y las asocio con teamsByLeague.
+    teamsByLeague.forEach(team => {
+      if (liga.id === team.leagueId) {
+        // Para cada equipo que sea igual en ID al existente en winsByTeams, sumo lus victorias. tomando en cuenta que en este punto, estoy ubicado en una liga en especifico
+        champions += winsByTeams.find(items => items.teamId === team.teamId).wins;
+      }
+    });
+
+    // Retorno un objeto con el nombre de la liga y las sumatorias de las champions ganadas por esas ligas
+    return {
+      liga: liga.name,
+      champions
+    }
+  });
+
+  return ligas;
 }
 
 // 4 Objeto en que las claves sean los nombres de las ligas y los valores el nombre del equipo con la menor cantidad de victorias en champions.
-function leaguesWithTeamWithLestWins () {
+function leaguesWithTeamWithLestWins() {
   // CODE HERE
 }
 
 // 5 Objeto en que las claves sean los nombres de las ligas y los valores el nombre del equipo con la mayor cantidad de victorias en champions.
-function leaguesWithTeamWithMostWins () {
+function leaguesWithTeamWithMostWins() {
   // CODE HERE
 }
 
 // 6 Arreglo con los nombres de las ligas ordenadas de mayor a menor por la cantidad de victorias de sus equipos.
-function sortLeaguesByTeamsByWins () {
-  // CODE HERE
+function sortLeaguesByTeamsByWins() {
+
+  // Ejercicio muy parecido al 3, solo que en este caso, ordeno las ligas de mayor a menos segun las victorias de sus equipos
+  const ligas = leaguesWithWins();
+
+  return ligas.sort(compare).map(item => item.liga);
 }
 
 // 7 Arreglo con los nombres de las ligas ordenadas de mayor a menor por la cantidad de equipos que participan en ellas.
-function sortLeaguesByTeams () {
+function sortLeaguesByTeams() {
   // CODE HERE
+
+  // Recorro las ligas 
+  const ligas = leagues.map(liga => {
+    // creo un nuevo arreglo con los equipos que coincidan en id con esa liga.
+    // en este nuevo arreglo tengo los equipos que pertenecen a una liga en especifica
+    // al pasarlo por .length, obtengo en numero de equipos exactos.
+    const teams = teamsByLeague.filter(wins => liga.id === wins.leagueId).length;
+
+    // retorno la liga y el numero de equipos
+    // utilizo el numero de equipos para ordenarlos
+    return {
+      liga: liga.name,
+      champions: teams
+    }
+  });
+
+  return ligas.sort(compare).map(item => item.liga);
 }
 
 // 8 Agregar un nuevo equipo con datos ficticios a "teams", asociarlo a la liga de Francia y agregar un total de 4 victorias en champions.
 // Luego devolver el lugar que ocupa este equipo en el ranking de la pregunta 2.
 // No modificar arreglos originales para no alterar las respuestas anteriores al correr la solución
-function newTeamRanking () {
+function newTeamRanking() {
   // CODE HERE
+
+  // creo un nuevo equipo
+  var equipo = { id: 14, country: 'France', name: 'Caracas F.C' };
+
+  // llamo la funcion agregar y mando el equipo como argumento
+  agregar(equipo);
+
+  // Llamo a la funcion del ejercicio 2 para obtener su posicion
+  //Retorna la Posicion del equipo que coinscida con 'Caracas F.C', le sumo uno ya que los arreglos comienzan por 0.
+  return sortTeamsByWins().findIndex(nameEquip => nameEquip === 'Caracas F.C') + 1;
 }
 
 // 9 Realice una función que retorne una promesa con los nombres de los equipos en upper case.
@@ -120,9 +224,22 @@ function newTeamRanking () {
 // recuerde que debe esperar el retorno de función asíncrona para que su resultado pueda ser mostrado por el
 // console.log. Utilice async await para la llamada asíncrona a la función.
 // NOTA: solo debe crear la función asíncrona y agregar la llamada en la siguiente función.
-async function getTeamsNamesAsUpperCase () {
-  let response
+// Esta funcion retorna una promesa
+let namesUpperCase = async () => {
+
+  let names = teams.map(items => items.name.toUpperCase());
+
+  if (!names) {
+    throw new Error(`No se encontraron nombres`);
+  } else {
+    return names;
+  }
+}
+
+async function getTeamsNamesAsUpperCase() {
+  let response;
   // ------MAKE AWAIT CALL HERE------
+  response = await namesUpperCase();
 
   // --------------------------------
   console.log('response:')
