@@ -9,6 +9,16 @@ function compare(a, b) {
   return 0;
 }
 
+const creaObj = array => {
+  let objeto = {};
+
+  array.forEach( items => {
+    objeto = Object.assign(objeto, items);
+  });
+
+  return objeto;
+}
+
 function agregar(equipo) {
 
   // agrego el equipo al arreglo de equipos
@@ -164,20 +174,68 @@ function leaguesWithWins() {
 // 4 Objeto en que las claves sean los nombres de las ligas y los valores el nombre del equipo con la menor cantidad de victorias en champions.
 function leaguesWithTeamWithLestWins() {
   // CODE HERE
+
+  const ligas = leagues.map(liga => {
+    var champions = 10;
+    var aux;
+    // Recorro las ligas y las asocio con teamsByLeague.
+    teamsByLeague.forEach(team => {
+      aux = 0;
+      if (liga.id === team.leagueId) {
+        // Para cada equipo que sea igual en ID al existente en winsByTeams, sumo lus victorias. tomando en cuenta que en este punto, estoy ubicado en una liga en especifico
+        aux = winsByTeams.find(items => items.teamId === team.teamId);
+        
+        if (aux.wins <= champions) {
+          champions = aux.wins;
+          nameEquipo = teams.find( nameEquipo => nameEquipo.id === aux.teamId ).name;
+        }
+      }
+    });
+    
+    return {
+      [liga.name]: nameEquipo
+    }
+  });
+  return creaObj(ligas);
 }
 
 // 5 Objeto en que las claves sean los nombres de las ligas y los valores el nombre del equipo con la mayor cantidad de victorias en champions.
+
 function leaguesWithTeamWithMostWins() {
   // CODE HERE
+  const ligas = leagues.map(liga => {
+    var champions = 0;
+    var aux;
+    // Recorro las ligas y las asocio con teamsByLeague.
+    teamsByLeague.forEach(team => {
+      aux = 0;
+      if (liga.id === team.leagueId) {
+        // Para cada equipo que sea igual en ID al existente en winsByTeams, sumo lus victorias. tomando en cuenta que en este punto, estoy ubicado en una liga en especifico
+        aux = winsByTeams.find(items => items.teamId === team.teamId);
+        
+        if (aux.wins >= champions) {
+          champions = aux.wins;
+          nameEquipo = teams.find( nameEquipo => nameEquipo.id === aux.teamId ).name;
+        }
+      }
+    });
+    
+    return {
+      [liga.name]: nameEquipo
+    }
+  });
+
+  return creaObj(ligas);
 }
 
 // 6 Arreglo con los nombres de las ligas ordenadas de mayor a menor por la cantidad de victorias de sus equipos.
 function sortLeaguesByTeamsByWins() {
-
+  
   // Ejercicio muy parecido al 3, solo que en este caso, ordeno las ligas de mayor a menos segun las victorias de sus equipos
   const ligas = leaguesWithWins();
 
   return ligas.sort(compare).map(item => item.liga);
+
 }
 
 // 7 Arreglo con los nombres de las ligas ordenadas de mayor a menor por la cantidad de equipos que participan en ellas.
@@ -216,7 +274,8 @@ function newTeamRanking() {
 
   // Llamo a la funcion del ejercicio 2 para obtener su posicion
   //Retorna la Posicion del equipo que coinscida con 'Caracas F.C', le sumo uno ya que los arreglos comienzan por 0.
-  return sortTeamsByWins().findIndex(nameEquip => nameEquip === 'Caracas F.C') + 1;
+  // return sortTeamsByWins().indexOf(nameEquip => nameEquip === 'Caracas F.C') + 1;
+  return sortTeamsByWins().indexOf('Caracas F.C') + 1;
 }
 
 // 9 Realice una función que retorne una promesa con los nombres de los equipos en upper case.
@@ -245,6 +304,7 @@ async function getTeamsNamesAsUpperCase() {
   console.log('response:')
   console.log(response)
 }
+
 
 // Impresión de soluciones. No modificar.
 console.log('Pregunta 0')
